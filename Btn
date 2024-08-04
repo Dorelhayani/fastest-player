@@ -4,6 +4,8 @@ unsigned long LastPressTime;
 unsigned long PressDuration;
 unsigned long PressStartTime;
 int LastVal;
+int val;
+bool flag; 
 
 void BTN_setup() {
 PressDuration = 0;
@@ -11,38 +13,55 @@ Serial.begin(9600);
 pinMode(RedBTN, INPUT_PULLUP);
 LastPressTime = millis();
 LastVal = digitalRead(RedBTN);
-wifiClient_Setup();
+// wifiClient_Setup();
 }
 
 void BTN_loop() {
+
 BtnPrssed();
-// BtnPrssed_Time();
+
+
+wifi_loop();
 }
 
 // Button Press Function 
 // ---------------------------------------------------------------------------------
 void  BtnPrssed(){
-int val = digitalRead(RedBTN);
+val = digitalRead(RedBTN);
 
  if( (val == LOW) && (LastVal == HIGH) && (millis() - LastPressTime > Dbounce ) ){
 Light(0x40E0D0);
+flag = true;
 LastPressTime = millis();
 PressStartTime = millis();
 PressDuration = 0;
 Serial.println("Button Pressed");
-SendBtnPressed(); }
-else { Light(0x000000); }
+// SendBtnPressed();
+ }
+else {
+   Light(0x000000); 
+   flag = false;
+}
 
+BtnPrssed_Time();
+LastVal = val;
+}
+// ---------------------------------------------------------------------------------
+
+
+// Button Press Time Function 
+// ---------------------------------------------------------------------------------
+void BtnPrssed_Time(){
+int val = digitalRead(RedBTN);
  if ((val == HIGH) && (LastVal == LOW) && (millis() - LastPressTime > Dbounce)) {
 LastPressTime = millis();
-PressDuration = millis() - PressStartTime; // Calculate the duration of the press
+PressDuration = millis() - PressStartTime;
 float PressDurationSeconds = PressDuration / 1000.0; 
 Serial.print("Button Press Duration: ");
 Serial.print(PressDurationSeconds);
 Serial.println(" seconds");
+// SendBtnPressed(); 
   }
-
-
-LastVal = val; // Update The Button State
 }
 // ---------------------------------------------------------------------------------
+
