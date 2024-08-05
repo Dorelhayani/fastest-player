@@ -1,0 +1,29 @@
+#define R D5
+#define G D6
+#define B D7
+
+// HEX - #rrggbbnnn
+
+void RGB_setup() {
+pinMode(R, OUTPUT);
+pinMode(G, OUTPUT);
+pinMode(B, OUTPUT);
+}
+
+void RGB_loop() {
+Light(0x40E0D0); // turquoise 
+Light(0xFFA500); // orange
+}
+
+void Light(long HexaColor){
+  int red = (HexaColor >> 16) & 0xFF; 
+  int green = (HexaColor >> 8) & 0xFF; 
+  int blue = HexaColor & 0xFF;
+  SetRGB(red, green, blue);
+}
+
+void SetRGB(int r, int g, int b){
+  analogWrite(R, r);
+  analogWrite(G, g);
+  analogWrite(B, b);
+}
