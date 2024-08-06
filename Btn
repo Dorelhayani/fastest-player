@@ -14,7 +14,7 @@ Serial.begin(9600);
 pinMode(RedBTN, INPUT_PULLUP);
 LastPressTime = millis();
 LastVal = digitalRead(RedBTN);
-
+RGB_setup();
 wifiClient_Setup();
 }
 
@@ -48,12 +48,10 @@ void  BtnPrssed(){
 val = digitalRead(RedBTN);
 
 if( (val == LOW) && (LastVal == HIGH) && (millis() - LastPressTime > Dbounce ) ){
-Light(0x40E0D0);
 LastPressTime = millis();
 PressStartTime = millis();
 PressDuration = 0;
 Serial.println("Button Pressed"); }
-else Light(0x000000); 
 
 BtnPrssed_Time();
 LastVal = val;
@@ -84,6 +82,18 @@ Serial.print("Button Press Duration in milliseconds: ");
 Serial.print(PressDurMill); 
 Serial.println(" ms");
 SendData(PressDurMill);
-  }
+
+UpdateRGB(PressDurMill);
+} }
+// ---------------------------------------------------------------------------------
+
+
+// RGB Update
+// ---------------------------------------------------------------------------------
+void UpdateRGB(float myDuration){
+int serverData = GetData();
+
+if(myDuration < serverData){ Light(0x40E0D0); delay(3000); Light(0x000000); } 
+else{ Light(0xFFA500); delay(100); Light(0x000000); } 
 }
 // ---------------------------------------------------------------------------------
