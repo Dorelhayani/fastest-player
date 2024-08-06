@@ -6,20 +6,41 @@ unsigned long PressStartTime;
 int LastVal;
 int val;
 
-void BTN_setup() {
+// Remote Server 
+// ---------------------------------------------------------------------------------
+void Remote_server_setup() {
 PressDuration = 0;
 Serial.begin(9600);
 pinMode(RedBTN, INPUT_PULLUP);
 LastPressTime = millis();
 LastVal = digitalRead(RedBTN);
+
 wifiClient_Setup();
 }
 
-void BTN_loop() {
-  BtnPrssed();
-// wifi_loop();
-
+void Remote_server_loop() {
+BtnPrssed();
 }
+// ---------------------------------------------------------------------------------
+
+
+// Ardiono as Server
+// ---------------------------------------------------------------------------------
+void Ardiono_as_Server_setup() {
+PressDuration = 0;
+Serial.begin(9600);
+pinMode(RedBTN, INPUT_PULLUP);
+LastPressTime = millis();
+LastVal = digitalRead(RedBTN);
+WifiSetup(); 
+}
+
+void Ardiono_as_Server_loop() {
+BtnPrssed();
+wifi_loop();
+}
+// ---------------------------------------------------------------------------------
+
 
 // Button Press Function 
 // ---------------------------------------------------------------------------------
@@ -63,7 +84,6 @@ Serial.print("Button Press Duration in milliseconds: ");
 Serial.print(PressDurMill); 
 Serial.println(" ms");
 SendData(PressDurMill);
-
   }
 }
 // ---------------------------------------------------------------------------------
