@@ -1,0 +1,105 @@
+// Arduino as Server 
+
+#define MAX_PRESSES 10
+float PressArr[MAX_PRESSES] = {0};
+float improvements[MAX_PRESSES] = {0};
+int idx = 0;
+
+
+// WIFI && SERVER Library
+//----------------------------------------------
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h> 
+//----------------------------------------------
+
+
+// IP Adress && Web name && Server Name && Port Number
+//----------------------------------------------
+IPAddress    apIP(55, 55, 55, 55); 
+const char* src_ssid = "DataTable";
+ESP8266WebServer server(80); 
+//----------------------------------------------
+
+
+// Wifi Setup Function
+//----------------------------------------------
+void WifiSetup() {
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.softAP(src_ssid);
+  // server.on("/table", handleTable);  // Add this line 
+  server.on("/", handleRoot);
+  server.onNotFound(handleNotFound);
+  server.on("/tabledata", RefreshTableData);
+  server.begin();
+}
+//----------------------------------------------
+
+
+// Wifi Loop function
+//----------------------------------------------
+void wifi_loop() {
+ server.handleClient(); 
+ delay(10); }
+//----------------------------------------------
+
+
+// HandleNotFound Function
+// ----------------------------------------------
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: " + String(server.uri());
+  message += "\nMethod: " + String((server.method() == HTTP_GET) ? "GET" : "POST");
+  message += "\nArguments: " + String(server.args());
+  message += "\n";
+
+  for (uint8_t i = 0; i < server.args(); i++) {
+  message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
+  server.send(404, "text/plain", message); }
+ //----------------------------------------------
+
+// Refresh Table Data
+// ----------------------------------------------
+ void RefreshTableData(){
+String json = "[";
+for (int i = 0; i < MAX_PRESSES; i++) {
+json += "{\"press\":" + String(i + 1) + ",";
+json += "\"duration\":" + String(PressArr[i], 2) + ",";
+json += "\"improvement\":" + String(improvements[i], 2) + "}";
+if (i < MAX_PRESSES - 1) json += ","; }
+
+json += "]";
+server.send(200, "application/json", json);
+ }
+// ----------------------------------------------
+
+
+// Handle Root Function
+// ----------------------------------------------
+void handleRoot() {
+String html = "<html><head>";
+html += "<meta charset=\"UTF-8\">";
+html += "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">";
+html += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
+html += "<title>Fastest Presser</title>";
+html += "<script>";
+html += "function fetchTableData() {";
+html += "fetch('/tabledata').then(response => response.json()).then(data => {";
+html += "let tableBody = document.getElementById('tableBody');";
+html += "tableBody.innerHTML = '';";
+html += "data.forEach((item, index) => {";
+html += "let row = document.createElement('tr');";
+html += "row.innerHTML = `<td>${item.press}</td><td>${item.duration.toFixed(2)}</td><td>${item.improvement.toFixed(2)}</td>`;";
+html += "tableBody.appendChild(row);";
+html += "});";
+html += "});";
+html += "}";
+html += "setInterval(fetchTableData, 1000);";
+html += "</script>";
+html += "</head><body onload='fetchTableData()'><center>";
+html += "<h2>Fastest Button Press</h2>";
+html += "<table border='1'><tr><th>Press #</th><th>Duration (seconds)</th><th>Improvement (seconds)</th></tr><tbody id='tableBody'></tbody></table>";
+html += "</center></body></html>";
+server.send(200, "text/html", html); }
+// ----------------------------------------------
+
