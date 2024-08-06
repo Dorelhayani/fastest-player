@@ -24,43 +24,42 @@ ESP8266WebServer server(80);
 // Wifi Setup Function
 //----------------------------------------------
 void WifiSetup() {
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(src_ssid);
-  // server.on("/table", handleTable);  // Add this line 
-  server.on("/", handleRoot);
-  server.onNotFound(handleNotFound);
-  server.on("/tabledata", RefreshTableData);
-  server.begin();
-}
+WiFi.mode(WIFI_AP_STA);
+WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+WiFi.softAP(src_ssid);
+server.on("/", handleRoot);
+server.onNotFound(handleNotFound);
+server.on("/tabledata", RefreshTableData);
+server.begin(); }
 //----------------------------------------------
 
 
 // Wifi Loop function
 //----------------------------------------------
 void wifi_loop() {
- server.handleClient(); 
- delay(10); }
+server.handleClient(); 
+delay(10); }
 //----------------------------------------------
 
 
 // HandleNotFound Function
 // ----------------------------------------------
 void handleNotFound() {
-  String message = "File Not Found\n\n";
-  message += "URI: " + String(server.uri());
-  message += "\nMethod: " + String((server.method() == HTTP_GET) ? "GET" : "POST");
-  message += "\nArguments: " + String(server.args());
-  message += "\n";
+String message = "File Not Found\n\n";
+message += "URI: " + String(server.uri());
+message += "\nMethod: " + String((server.method() == HTTP_GET) ? "GET" : "POST");
+message += "\nArguments: " + String(server.args());
+message += "\n";
 
-  for (uint8_t i = 0; i < server.args(); i++) {
-  message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
-  server.send(404, "text/plain", message); }
- //----------------------------------------------
+for (uint8_t i = 0; i < server.args(); i++) {
+message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
+server.send(404, "text/plain", message); }
+//----------------------------------------------
+
 
 // Refresh Table Data
 // ----------------------------------------------
- void RefreshTableData(){
+void RefreshTableData(){
 String json = "[";
 for (int i = 0; i < MAX_PRESSES; i++) {
 json += "{\"press\":" + String(i + 1) + ",";
