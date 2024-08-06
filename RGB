@@ -2,8 +2,6 @@
 #define G D6
 #define B D7
 
-// HEX - #rrggbbnnn
-
 void RGB_setup() {
 pinMode(R, OUTPUT);
 pinMode(G, OUTPUT);
